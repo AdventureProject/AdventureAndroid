@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity
 			public void onClick( View view )
 			{
 				// Execute DownloadImage AsyncTask
-				new DownloadImage().execute( "http://wethinkadventure.rocks/todayswallpaper" );
+				new DownloadImage().execute( "http://wethinkadventure.rocks/random" );
 				Snackbar.make( view, "Fetching new Wallpaper", Snackbar.LENGTH_LONG )
 						.setAction( "Action", null ).show();
 			}

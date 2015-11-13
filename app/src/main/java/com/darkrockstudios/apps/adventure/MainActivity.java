@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity
 														   new ComponentName( getPackageName(),
 																			  WallpaperService.class.getName() ) );
 
-			builder.setPeriodic( 4 * 60 * 60 * 1000 );
+			builder.setPeriodic( 24 * 60 * 60 * 1000 );
 			builder.setPersisted( true );
 
 			jobScheduler.schedule( builder.build() );
@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity
 			// Create a progressdialog
 			m_progressDialog = new ProgressDialog( MainActivity.this );
 			// Set progressdialog title
-			m_progressDialog.setTitle( "Download Image Tutorial" );
+			m_progressDialog.setTitle( "Download Image" );
 			// Set progressdialog message
 			m_progressDialog.setMessage( "Loading..." );
 			m_progressDialog.setIndeterminate( false );

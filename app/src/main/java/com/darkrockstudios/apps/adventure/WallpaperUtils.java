@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.io.File;
 import java.io.InputStream;
@@ -24,6 +27,7 @@ import java.io.InputStream;
 public final class WallpaperUtils
 {
 	public static final String WALLPAPER_FILE_NAME = "current_wallpaper";
+	public static final String JOB_EXTRA_IS_SETUP = "is_setup";
 
 	public static File getCurrentWallpaperFile( @NonNull final Context context )
 	{
@@ -33,15 +37,24 @@ public final class WallpaperUtils
 
 	public static void setupWallpaperJob( @NonNull final Context context )
 	{
-		JobScheduler jobScheduler = (JobScheduler) context.getSystemService( Context.JOB_SCHEDULER_SERVICE );
+		final JobScheduler jobScheduler = (JobScheduler) context.getSystemService( Context.JOB_SCHEDULER_SERVICE );
 		if( jobScheduler.getAllPendingJobs().size() == 0 )
 		{
 			JobInfo.Builder builder = new JobInfo.Builder( 1,
 														   new ComponentName( context.getPackageName(),
 																			  WallpaperService.class.getName() ) );
 
-			builder.setPeriodic( 12 * 60 * 60 * 1000 );
+			final DateTime now = DateTime.now();
+			final DateTime startOfTomorrow = now.withTimeAtStartOfDay().plusDays( 1 );
+			final DateTime oneAmTomorrow = startOfTomorrow.plusHours( 1 );
+			final Interval timeTillOneAm = new Interval( now, oneAmTomorrow );
+
+			builder.setMinimumLatency( timeTillOneAm.toDurationMillis() );
 			builder.setPersisted( true );
+
+			PersistableBundle extras = new PersistableBundle();
+			extras.putBoolean( JOB_EXTRA_IS_SETUP, true );
+			builder.setExtras( extras );
 
 			jobScheduler.schedule( builder.build() );
 

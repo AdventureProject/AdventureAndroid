@@ -26,6 +26,8 @@ import java.io.InputStream;
  */
 public final class WallpaperUtils
 {
+	private static final String TAG = WallpaperUtils.class.getSimpleName();
+
 	public static final String WALLPAPER_FILE_NAME = "current_wallpaper";
 	public static final String JOB_EXTRA_IS_SETUP = "is_setup";
 
@@ -37,9 +39,11 @@ public final class WallpaperUtils
 
 	public static void setupWallpaperJob( @NonNull final Context context )
 	{
+		Log.d( TAG, "setupWallpaperJob" );
 		final JobScheduler jobScheduler = (JobScheduler) context.getSystemService( Context.JOB_SCHEDULER_SERVICE );
 		if( jobScheduler.getAllPendingJobs().size() == 0 )
 		{
+			Log.d( TAG, "Scheduling setup job" );
 			JobInfo.Builder builder = new JobInfo.Builder( 1,
 														   new ComponentName( context.getPackageName(),
 																			  WallpaperService.class.getName() ) );
@@ -48,8 +52,11 @@ public final class WallpaperUtils
 			final DateTime startOfTomorrow = now.withTimeAtStartOfDay().plusDays( 1 );
 			final DateTime oneAmTomorrow = startOfTomorrow.plusHours( 1 );
 			final Interval timeTillOneAm = new Interval( now, oneAmTomorrow );
+			final long timeTillOneAmMills = timeTillOneAm.toDurationMillis();
 
-			builder.setMinimumLatency( timeTillOneAm.toDurationMillis() );
+			builder.setMinimumLatency( timeTillOneAmMills );
+			builder.setOverrideDeadline( timeTillOneAmMills );
+			builder.setRequiredNetworkType( JobInfo.NETWORK_TYPE_ANY );
 			builder.setPersisted( true );
 
 			PersistableBundle extras = new PersistableBundle();

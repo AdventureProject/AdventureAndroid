@@ -1,5 +1,7 @@
 package com.darkrockstudios.apps.adventure;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
@@ -73,7 +75,47 @@ public class WallpaperService extends JobService
 
 			final boolean success = (getBitmap() != null);
 			Log.d( TAG, "Wallpaper success: " + success );
+
+			if( success )
+			{
+				postSuccessNotification();
+			}
+			else
+			{
+				postFailureNotification();
+			}
+
 			m_service.jobFinished( m_params, !success );
+		}
+
+		private void postSuccessNotification()
+		{
+			Notification notification = new Notification.Builder( m_service )
+					                 .setContentTitle( "New wallpaper set" )
+					                 .setContentText( "So cool!" )
+					                 .setSmallIcon( R.mipmap.ic_launcher )
+					                 .setAutoCancel( true ).build();
+
+
+			NotificationManager notificationManager =
+					(NotificationManager) m_service.getSystemService( NOTIFICATION_SERVICE );
+
+			notificationManager.notify( 0, notification );
+		}
+
+		private void postFailureNotification()
+		{
+			Notification notification = new Notification.Builder( m_service )
+					                 .setContentTitle( "Wallpaper failure" )
+					                 .setContentText( "Failed to set the wallpaper for some reason" )
+					                 .setSmallIcon( R.mipmap.ic_launcher )
+					                 .setAutoCancel( true ).build();
+
+
+			NotificationManager notificationManager =
+					(NotificationManager) m_service.getSystemService( NOTIFICATION_SERVICE );
+
+			notificationManager.notify( 0, notification );
 		}
 	}
 }

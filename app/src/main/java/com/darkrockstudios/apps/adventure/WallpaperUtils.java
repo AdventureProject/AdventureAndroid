@@ -7,7 +7,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,7 +28,6 @@ public final class WallpaperUtils
 	private static final String TAG = WallpaperUtils.class.getSimpleName();
 
 	public static final String WALLPAPER_FILE_NAME = "current_wallpaper";
-	public static final String JOB_EXTRA_IS_SETUP = "is_setup";
 
 	public static File getCurrentWallpaperFile( @NonNull final Context context )
 	{
@@ -58,10 +56,6 @@ public final class WallpaperUtils
 			builder.setOverrideDeadline( timeTillOneAmMills );
 			builder.setRequiredNetworkType( JobInfo.NETWORK_TYPE_ANY );
 			builder.setPersisted( true );
-
-			PersistableBundle extras = new PersistableBundle();
-			extras.putBoolean( JOB_EXTRA_IS_SETUP, true );
-			builder.setExtras( extras );
 
 			jobScheduler.schedule( builder.build() );
 

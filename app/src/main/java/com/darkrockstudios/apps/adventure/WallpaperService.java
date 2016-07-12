@@ -46,14 +46,14 @@ public class WallpaperService extends JobService
 
 			Log.d( TAG, "WallpaperServiceTask::run()" );
 
-			// Reschedule us at the correct time
-			WallpaperUtils.setupWallpaperJob( m_service );
-
 			final boolean success = (getBitmap() != null);
 			Log.d( TAG, "Wallpaper success: " + success );
 
 			if( success )
 			{
+				// Reschedule us at the correct time
+				WallpaperUtils.setupWallpaperJob( m_service );
+
 				postSuccessNotification();
 			}
 			else

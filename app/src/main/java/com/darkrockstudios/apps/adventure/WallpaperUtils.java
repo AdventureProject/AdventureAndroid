@@ -4,6 +4,8 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -36,8 +38,8 @@ public final class WallpaperUtils
 		{
 			Log.d( TAG, "Scheduling job" );
 			JobInfo.Builder builder = new JobInfo.Builder( 1,
-														   new ComponentName( context.getPackageName(),
-																			  WallpaperService.class.getName() ) );
+			                                               new ComponentName( context.getPackageName(),
+			                                                                  WallpaperService.class.getName() ) );
 
 			final DateTime now = DateTime.now();
 			final DateTime startOfTomorrow = now.withTimeAtStartOfDay().plusDays( 1 );
@@ -51,7 +53,14 @@ public final class WallpaperUtils
 
 			jobScheduler.schedule( builder.build() );
 
-			Toast.makeText( context, "Scheduling Wallpaper Service", Toast.LENGTH_SHORT ).show();
+			new Handler( Looper.getMainLooper() ).post( new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Toast.makeText( context, "Scheduling Wallpaper Service", Toast.LENGTH_SHORT ).show();
+				}
+			} );
 		}
 	}
 

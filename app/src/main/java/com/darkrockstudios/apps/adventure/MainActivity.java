@@ -112,17 +112,30 @@ public class MainActivity extends AppCompatActivity
 
 	private void showLoading()
 	{
-		m_progressBar.setVisibility( View.VISIBLE );
-		m_imageView.setVisibility( View.GONE );
-		m_imageView.setImageBitmap( null );
+		if( m_progressBar != null )
+		{
+			m_progressBar.setVisibility( View.VISIBLE );
+		}
+
+		if( m_imageView != null )
+		{
+			m_imageView.setVisibility( View.GONE );
+			m_imageView.setImageBitmap( null );
+		}
 	}
 
 	private void showImage( Bitmap image )
 	{
-		m_progressBar.setVisibility( View.GONE );
+		if( m_progressBar != null )
+		{
+			m_progressBar.setVisibility( View.GONE );
+		}
 
-		m_imageView.setImageBitmap( image );
-		m_imageView.setVisibility( View.VISIBLE );
+		if( m_imageView != null )
+		{
+			m_imageView.setImageBitmap( image );
+			m_imageView.setVisibility( View.VISIBLE );
+		}
 	}
 
 	private class LoadImageForPreview extends AsyncTask<Void, Void, Bitmap>
@@ -153,7 +166,6 @@ public class MainActivity extends AppCompatActivity
 		protected void onPostExecute( Bitmap result )
 		{
 			showImage( result );
-			m_progressBar.setVisibility( View.GONE );
 
 			if( result == null )
 			{

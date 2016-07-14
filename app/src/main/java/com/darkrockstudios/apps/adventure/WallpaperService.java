@@ -30,7 +30,7 @@ public class WallpaperService extends JobService
 	private static class WallpaperServiceTask extends WallpaperTask
 	{
 		private final WallpaperService m_service;
-		private final JobParameters m_params;
+		private final JobParameters    m_params;
 
 		private WallpaperServiceTask( WallpaperService context, JobParameters params )
 		{
@@ -49,6 +49,8 @@ public class WallpaperService extends JobService
 			final boolean success = (getBitmap() != null);
 			Log.d( TAG, "Wallpaper success: " + success );
 
+			m_service.jobFinished( m_params, !success );
+
 			if( success )
 			{
 				// Reschedule us at the correct time
@@ -60,17 +62,15 @@ public class WallpaperService extends JobService
 			{
 				postFailureNotification();
 			}
-
-			m_service.jobFinished( m_params, !success );
 		}
 
 		private void postSuccessNotification()
 		{
 			Notification notification = new Notification.Builder( m_service )
-					                 .setContentTitle( "New wallpaper set" )
-					                 .setContentText( "So cool!" )
-					                 .setSmallIcon( R.mipmap.ic_launcher )
-					                 .setAutoCancel( true ).build();
+					                            .setContentTitle( "New wallpaper set" )
+					                            .setContentText( "So cool!" )
+					                            .setSmallIcon( R.mipmap.ic_launcher )
+					                            .setAutoCancel( true ).build();
 
 
 			NotificationManager notificationManager =
@@ -82,10 +82,10 @@ public class WallpaperService extends JobService
 		private void postFailureNotification()
 		{
 			Notification notification = new Notification.Builder( m_service )
-					                 .setContentTitle( "Wallpaper failure" )
-					                 .setContentText( "Failed to set the wallpaper for some reason" )
-					                 .setSmallIcon( R.mipmap.ic_launcher )
-					                 .setAutoCancel( true ).build();
+					                            .setContentTitle( "Wallpaper failure" )
+					                            .setContentText( "Failed to set the wallpaper for some reason" )
+					                            .setSmallIcon( R.mipmap.ic_launcher )
+					                            .setAutoCancel( true ).build();
 
 
 			NotificationManager notificationManager =

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Adventure.Rocks</string>
+
+    <string name="notification_success_wallpaper_title">New Adventure Wallpaper set</string>
+
+    <string name="notification_failure_wallpaper_title">Adventure Wallpaper failure</string>
+    <string name="notification_failure_wallpaper_message">Failed to set the wallpaper for some reason</string>
+
+    <string name="toast_getting_wallpaper">Fetching new Wallpaper</string>
+    <string name="toast_wallpaper_service_scheduling">Scheduling Wallpaper Service</string>
+    <string name="toast_wallpaper_service_start_scheduling">Starting Wallpaper Job</string>
+    <string name="toast_wallpaper_service_stop_scheduling">Stopping Wallpaper Job</string>
 </resources>

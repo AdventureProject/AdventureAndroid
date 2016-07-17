@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity
 			public void onClick( View view )
 			{
 				new WallpaperActivityTask().execute( WallpaperTask.URL_RANDOM );
-				Snackbar.make( view, "Fetching new Wallpaper", Snackbar.LENGTH_LONG ).show();
+				Snackbar.make( view, R.string.toast_getting_wallpaper, Snackbar.LENGTH_LONG ).show();
 			}
 		} );
 
@@ -101,12 +101,13 @@ public class MainActivity extends AppCompatActivity
 		if( isChecked )
 		{
 			WallpaperUtils.setupWallpaperJob( this );
-			Snackbar.make( m_scheduledCheckbox, "Starting Wallpaper Job", Snackbar.LENGTH_LONG ).show();
+			Snackbar.make( m_scheduledCheckbox, R.string.toast_wallpaper_service_start_scheduling, Snackbar.LENGTH_LONG )
+			        .show();
 		}
 		else
 		{
 			WallpaperUtils.stopWallpaperJob( MainActivity.this );
-			Snackbar.make( m_scheduledCheckbox, "Stopping Wallpaper Job", Snackbar.LENGTH_LONG ).show();
+			Snackbar.make( m_scheduledCheckbox, R.string.toast_wallpaper_service_stop_scheduling, Snackbar.LENGTH_LONG ).show();
 		}
 	}
 

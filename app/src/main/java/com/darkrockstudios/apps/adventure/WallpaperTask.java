@@ -29,11 +29,17 @@ public class WallpaperTask implements Runnable
 	private final Context m_context;
 	private final String  m_url;
 	private       Bitmap  m_bitmap;
+	private       Photo   m_photo;
 
 	public WallpaperTask( final Context context, final String url )
 	{
 		m_context = context;
 		m_url = url;
+	}
+
+	public Photo getPhoto()
+	{
+		return m_photo;
 	}
 
 	public Bitmap getBitmap()
@@ -50,10 +56,10 @@ public class WallpaperTask implements Runnable
 
 			InputStream jsonInput = new java.net.URL( m_url ).openStream();
 			String json = IOUtils.toString( jsonInput, "UTF-8" );
-			Photo photo = gson.fromJson( json, Photo.class );
+			m_photo = gson.fromJson( json, Photo.class );
 
-			Log.d( TAG, "Image URL: " + photo.image );
-			InputStream input = new java.net.URL( photo.image ).openStream();
+			Log.d( TAG, "Image URL: " + m_photo.image );
+			InputStream input = new java.net.URL( m_photo.image ).openStream();
 			m_bitmap = BitmapFactory.decodeStream( input );
 
 			write( m_bitmap );

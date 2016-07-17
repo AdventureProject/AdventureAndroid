@@ -59,7 +59,7 @@ public final class WallpaperUtils
 			@Override
 			public void run()
 			{
-				Toast.makeText( context, "Scheduling Wallpaper Service", Toast.LENGTH_SHORT ).show();
+				Toast.makeText( context, R.string.toast_wallpaper_service_scheduling, Toast.LENGTH_SHORT ).show();
 			}
 		} );
 	}

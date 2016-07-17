@@ -10,13 +10,18 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,6 +46,12 @@ public class MainActivity extends AppCompatActivity
 
 	@BindView(R.id.progressBar)
 	ProgressBar m_progressBar;
+
+	@BindView(R.id.photo_title)
+	TextView m_photoTitleView;
+
+	@BindView(R.id.photo_description)
+	TextView m_photoDescriptionView;
 
 	private Unbinder m_viewUnbinder;
 
@@ -123,9 +134,19 @@ public class MainActivity extends AppCompatActivity
 			m_imageView.setVisibility( View.GONE );
 			m_imageView.setImageBitmap( null );
 		}
+
+		if( m_photoTitleView != null )
+		{
+			m_photoTitleView.setText( "" );
+		}
+
+		if( m_photoDescriptionView != null )
+		{
+			m_photoDescriptionView.setText( "" );
+		}
 	}
 
-	private void showImage( Bitmap image )
+	private void showImage( PhotoData data )
 	{
 		if( m_progressBar != null )
 		{
@@ -134,12 +155,37 @@ public class MainActivity extends AppCompatActivity
 
 		if( m_imageView != null )
 		{
-			m_imageView.setImageBitmap( image );
+			m_imageView.setImageBitmap( data.m_bitmap );
 			m_imageView.setVisibility( View.VISIBLE );
+		}
+
+		String title = "";
+		String description = "";
+		if( data.m_photo != null )
+		{
+			if( !TextUtils.isEmpty( data.m_photo.title ) )
+			{
+				title = data.m_photo.title;
+			}
+
+			if( !TextUtils.isEmpty( data.m_photo.description ) )
+			{
+				description = data.m_photo.description;
+			}
+		}
+
+		if( m_photoTitleView != null )
+		{
+			m_photoTitleView.setText( title );
+		}
+
+		if( m_photoDescriptionView != null )
+		{
+			m_photoDescriptionView.setText( description );
 		}
 	}
 
-	private class LoadImageForPreview extends AsyncTask<Void, Void, Bitmap>
+	private class LoadImageForPreview extends AsyncTask<Void, Void, PhotoData>
 	{
 		@Override
 		protected void onPreExecute()
@@ -150,21 +196,35 @@ public class MainActivity extends AppCompatActivity
 		}
 
 		@Override
-		protected Bitmap doInBackground( Void... params )
+		protected PhotoData doInBackground( Void... params )
 		{
-			File image = WallpaperUtils.getCurrentWallpaperFile( MainActivity.this );
+			File imageFile = WallpaperUtils.getCurrentWallpaperFile( MainActivity.this );
 			BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-			Bitmap bitmap = BitmapFactory.decodeFile( image.getAbsolutePath(), bmOptions );
+			Bitmap bitmap = BitmapFactory.decodeFile( imageFile.getAbsolutePath(), bmOptions );
 			if( bitmap != null )
 			{
 				bitmap = Bitmap.createScaledBitmap( bitmap, bitmap.getWidth() / 2, bitmap.getHeight() / 2, false );
 			}
 
-			return bitmap;
+			Photo photo = null;
+			try
+			{
+				File photoFile = WallpaperUtils.getCurrentPhotoFile( MainActivity.this );
+				FileInputStream fin = new FileInputStream( photoFile );
+				ObjectInputStream ois = new ObjectInputStream( fin );
+				photo = (Photo) ois.readObject();
+			}
+			catch( IOException | ClassNotFoundException e )
+			{
+				e.printStackTrace();
+			}
+
+
+			return new PhotoData( photo, bitmap );
 		}
 
 		@Override
-		protected void onPostExecute( Bitmap result )
+		protected void onPostExecute( PhotoData result )
 		{
 			showImage( result );
 
@@ -175,7 +235,7 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
-	private class WallpaperActivityTask extends AsyncTask<String, Void, Bitmap>
+	private class WallpaperActivityTask extends AsyncTask<String, Void, PhotoData>
 	{
 		@Override
 		protected void onPreExecute()
@@ -186,21 +246,32 @@ public class MainActivity extends AppCompatActivity
 		}
 
 		@Override
-		protected Bitmap doInBackground( String... params )
+		protected PhotoData doInBackground( String... params )
 		{
 			final WallpaperTask task = new WallpaperTask( MainActivity.this, params[ 0 ] );
 			task.run();
-			final Bitmap bitmap = task.getBitmap();
 
-			return bitmap;
+			return new PhotoData( task.getPhoto(), task.getBitmap() );
 		}
 
 		@Override
-		protected void onPostExecute( Bitmap bitmap )
+		protected void onPostExecute( PhotoData data )
 		{
-			super.onPostExecute( bitmap );
+			super.onPostExecute( data );
 
-			showImage( bitmap );
+			showImage( data );
+		}
+	}
+
+	private static class PhotoData
+	{
+		public final Photo  m_photo;
+		public final Bitmap m_bitmap;
+
+		private PhotoData( Photo photo, Bitmap bitmap )
+		{
+			m_photo = photo;
+			m_bitmap = bitmap;
 		}
 	}
 }

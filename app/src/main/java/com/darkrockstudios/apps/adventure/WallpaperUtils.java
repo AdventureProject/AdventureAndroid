@@ -22,6 +22,7 @@ public final class WallpaperUtils
 {
 	private static final String TAG = WallpaperUtils.class.getSimpleName();
 
+	public static final String PHOTO_FILE_NAME         = "current_photo";
 	public static final String WALLPAPER_FILE_NAME     = "current_wallpaper";
 	public static final int    WALLPAPER_UPDATE_JOB_ID = 1;
 
@@ -29,6 +30,12 @@ public final class WallpaperUtils
 	{
 		final File filesDir = context.getFilesDir();
 		return new File( filesDir, WallpaperUtils.WALLPAPER_FILE_NAME );
+	}
+
+	public static File getCurrentPhotoFile( @NonNull final Context context )
+	{
+		final File filesDir = context.getFilesDir();
+		return new File( filesDir, WallpaperUtils.PHOTO_FILE_NAME );
 	}
 
 	public static void setupWallpaperJob( @NonNull final Context context )

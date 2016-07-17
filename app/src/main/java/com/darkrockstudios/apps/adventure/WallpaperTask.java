@@ -13,9 +13,11 @@ import com.google.gson.Gson;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * Created by Adam on 11/16/2015.
@@ -62,6 +64,7 @@ public class WallpaperTask implements Runnable
 			InputStream input = new java.net.URL( m_photo.image ).openStream();
 			m_bitmap = BitmapFactory.decodeStream( input );
 
+			write( m_photo );
 			write( m_bitmap );
 
 			setHomeScreenWallpaper( m_bitmap );
@@ -72,7 +75,45 @@ public class WallpaperTask implements Runnable
 		}
 	}
 
-	private void write( @Nullable Bitmap bitmap )
+	private void write( @Nullable final Photo photo )
+	{
+		if( photo != null )
+		{
+			FileOutputStream out = null;
+			try
+			{
+				File file = WallpaperUtils.getCurrentPhotoFile( m_context );
+				if( file.exists() )
+				{
+					file.delete();
+				}
+				file.createNewFile();
+				out = new FileOutputStream( file );
+				ObjectOutputStream oos = new ObjectOutputStream( out );
+				oos.writeObject( photo );
+			}
+			catch( IOException e )
+			{
+				e.printStackTrace();
+			}
+			finally
+			{
+				if( out != null )
+				{
+					try
+					{
+						out.close();
+					}
+					catch( IOException e )
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	private void write( @Nullable final Bitmap bitmap )
 	{
 		if( bitmap != null )
 		{
@@ -104,7 +145,7 @@ public class WallpaperTask implements Runnable
 		}
 	}
 
-	private void setHomeScreenWallpaper( Bitmap bitmap )
+	private void setHomeScreenWallpaper( @NonNull final Bitmap bitmap )
 	{
 		DisplayMetrics displayMetrics = m_context.getResources().getDisplayMetrics();
 

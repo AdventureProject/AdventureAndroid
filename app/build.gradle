@@ -9,8 +9,8 @@ android {
         applicationId "com.darkrockstudios.apps.adventure"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 9
-        versionName "0.09"
+        versionCode 10
+        versionName "0.10"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7

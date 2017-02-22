@@ -13,4 +13,5 @@ public class Photo implements Serializable
 	public String location;
 	public String image;
 	public String url;
+	public String id;
 }

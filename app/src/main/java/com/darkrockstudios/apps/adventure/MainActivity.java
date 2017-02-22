@@ -1,13 +1,19 @@
 package com.darkrockstudios.apps.adventure;
 
 import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsClient;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -18,6 +24,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,11 +34,29 @@ import java.io.ObjectInputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class MainActivity extends AppCompatActivity
 		implements CompoundButton.OnCheckedChangeListener
 {
+	private CustomTabsServiceConnection m_connection = new CustomTabsServiceConnection()
+	{
+		@Override
+		public void onCustomTabsServiceConnected( ComponentName name, CustomTabsClient client )
+		{
+			m_customTabsClient = client;
+			m_customTabsClient.warmup( 0 );
+		}
+
+		@Override
+		public void onServiceDisconnected( ComponentName name )
+		{
+
+		}
+	};
+	private CustomTabsClient m_customTabsClient;
+
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	@BindView(R.id.toolbar)
@@ -37,6 +64,12 @@ public class MainActivity extends AppCompatActivity
 
 	@BindView(R.id.image)
 	ImageView m_imageView;
+
+	@BindView(R.id.map_zoomed_out)
+	ImageView m_mapZoomedOutView;
+
+	@BindView(R.id.map_zoomed_in)
+	ImageView m_mapZoomedInView;
 
 	@BindView(R.id.scheduledCheckbox)
 	CheckBox m_scheduledCheckbox;
@@ -53,7 +86,15 @@ public class MainActivity extends AppCompatActivity
 	@BindView(R.id.photo_description)
 	TextView m_photoDescriptionView;
 
+	@BindView(R.id.photo_info_button)
+	TextView m_photoInfoButton;
+
+	@BindView(R.id.photo_date)
+	TextView m_photoDateView;
+
 	private Unbinder m_viewUnbinder;
+
+	private Photo m_currentPhoto;
 
 	@Override
 	protected void onCreate( Bundle savedInstanceState )
@@ -75,6 +116,8 @@ public class MainActivity extends AppCompatActivity
 		} );
 
 		new LoadImageForPreview().execute();
+
+		boolean ok = CustomTabsClient.bindCustomTabsService( this, "com.android.chrome", m_connection );
 	}
 
 	private void populateCheckbox()
@@ -99,6 +142,12 @@ public class MainActivity extends AppCompatActivity
 	{
 		super.onDestroy();
 
+		if( m_customTabsClient != null )
+		{
+			m_customTabsClient = null;
+			unbindService( m_connection );
+		}
+
 		if( m_viewUnbinder != null )
 		{
 			m_viewUnbinder.unbind();
@@ -122,6 +171,20 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
+	@OnClick(R.id.photo_info_button)
+	public void onPhotoInfo()
+	{
+		if( m_currentPhoto != null )
+		{
+			//startActivity( new Intent( Intent.ACTION_VIEW ).setData( Uri.parse( m_currentPhoto.url ) ) );
+			CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+			builder.setShowTitle( true );
+			builder.setToolbarColor( ContextCompat.getColor( this, R.color.colorPrimary ) );
+			CustomTabsIntent customTabsIntent = builder.build();
+			customTabsIntent.launchUrl( this, Uri.parse( m_currentPhoto.url ) );
+		}
+	}
+
 	private void showLoading()
 	{
 		if( m_progressBar != null )
@@ -140,17 +203,46 @@ public class MainActivity extends AppCompatActivity
 			m_photoTitleView.setText( "" );
 		}
 
+		if( m_photoDateView != null )
+		{
+			m_photoDateView.setText( "" );
+		}
+
 		if( m_photoDescriptionView != null )
 		{
 			m_photoDescriptionView.setText( "" );
+		}
+
+		if( m_photoInfoButton != null )
+		{
+			m_photoInfoButton.setVisibility( View.GONE );
+		}
+
+		if( m_mapZoomedOutView != null )
+		{
+			m_mapZoomedOutView.setImageDrawable( null );
+			m_mapZoomedOutView.setVisibility( View.GONE );
+		}
+
+		if( m_mapZoomedInView != null )
+		{
+			m_mapZoomedInView.setImageDrawable( null );
+			m_mapZoomedInView.setVisibility( View.GONE );
 		}
 	}
 
 	private void showImage( PhotoData data )
 	{
+		m_currentPhoto = data.m_photo;
+
 		if( m_progressBar != null )
 		{
 			m_progressBar.setVisibility( View.GONE );
+		}
+
+		if( m_photoInfoButton != null )
+		{
+			m_photoInfoButton.setVisibility( View.VISIBLE );
 		}
 
 		if( m_imageView != null )
@@ -161,6 +253,8 @@ public class MainActivity extends AppCompatActivity
 
 		String title = "";
 		String description = "";
+		String date = "";
+		String location = "";
 		if( data.m_photo != null )
 		{
 			if( !TextUtils.isEmpty( data.m_photo.title ) )
@@ -172,6 +266,36 @@ public class MainActivity extends AppCompatActivity
 			{
 				description = data.m_photo.description;
 			}
+
+			if( !TextUtils.isEmpty( data.m_photo.date ) )
+			{
+				date = data.m_photo.date;
+			}
+
+			if( !TextUtils.isEmpty( data.m_photo.location ) )
+			{
+				location = data.m_photo.location;
+			}
+		}
+
+		if( m_mapZoomedInView != null )
+		{
+			m_mapZoomedInView.setVisibility( View.VISIBLE );
+
+			String url = PhotoMap.getZoomedInMapUrl( location, this );
+			Picasso.with( this )
+			       .load( url )
+			       .into( m_mapZoomedInView, new ImageCallback() );
+		}
+
+		if( m_mapZoomedOutView != null )
+		{
+			m_mapZoomedOutView.setVisibility( View.VISIBLE );
+
+			String url = PhotoMap.getZoomedOutMapUrl( location, this );
+			Picasso.with( this )
+			       .load( url )
+			       .into( m_mapZoomedOutView, new ImageCallback() );
 		}
 
 		if( m_photoTitleView != null )
@@ -179,9 +303,29 @@ public class MainActivity extends AppCompatActivity
 			m_photoTitleView.setText( title );
 		}
 
+		if( m_photoDateView != null )
+		{
+			m_photoDateView.setText( date );
+		}
+
 		if( m_photoDescriptionView != null )
 		{
 			m_photoDescriptionView.setText( description );
+		}
+	}
+
+	private class ImageCallback implements Callback
+	{
+		@Override
+		public void onSuccess()
+		{
+
+		}
+
+		@Override
+		public void onError()
+		{
+
 		}
 	}
 
@@ -206,7 +350,7 @@ public class MainActivity extends AppCompatActivity
 				bitmap = Bitmap.createScaledBitmap( bitmap, bitmap.getWidth() / 2, bitmap.getHeight() / 2, false );
 			}
 
-			Photo photo = null;
+			Photo photo;
 			try
 			{
 				File photoFile = WallpaperUtils.getCurrentPhotoFile( MainActivity.this );
@@ -216,21 +360,30 @@ public class MainActivity extends AppCompatActivity
 			}
 			catch( IOException | ClassNotFoundException e )
 			{
+				photo = null;
 				e.printStackTrace();
 			}
 
-
-			return new PhotoData( photo, bitmap );
+			if( photo != null )
+			{
+				return new PhotoData( photo, bitmap );
+			}
+			else
+			{
+				return null;
+			}
 		}
 
 		@Override
 		protected void onPostExecute( PhotoData result )
 		{
-			showImage( result );
-
 			if( result == null )
 			{
 				new WallpaperActivityTask().execute( WallpaperTask.URL_TODAY );
+			}
+			else
+			{
+				showImage( result );
 			}
 		}
 	}

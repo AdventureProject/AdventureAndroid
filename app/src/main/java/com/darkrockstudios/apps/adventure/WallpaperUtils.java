@@ -4,11 +4,8 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -60,15 +57,6 @@ public final class WallpaperUtils
 		builder.setPersisted( true );
 
 		jobScheduler.schedule( builder.build() );
-
-		new Handler( Looper.getMainLooper() ).post( new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				Toast.makeText( context, R.string.toast_wallpaper_service_scheduling, Toast.LENGTH_SHORT ).show();
-			}
-		} );
 	}
 
 	public static void stopWallpaperJob( @NonNull final Context context )

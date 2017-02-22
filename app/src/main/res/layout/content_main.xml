@@ -5,10 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main"
     tools:context=".MainActivity">
@@ -20,7 +16,32 @@
         android:layout_below="@+id/scheduledCheckbox"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:scaleType="fitCenter"/>
+        android:scaleType="centerCrop"/>
+
+    <LinearLayout
+        android:id="@+id/map_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:orientation="horizontal"
+        android:layout_below="@+id/photo_description">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_weight="1"
+            android:id="@+id/map_zoomed_out"
+            android:scaleType="centerCrop"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_weight="1"
+            android:id="@+id/map_zoomed_in"
+            android:scaleType="centerCrop"/>
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -40,13 +61,20 @@
         style="@android:style/TextAppearance.Large.Inverse"
         android:text="@string/schedule_service"/>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@+id/scheduledCheckbox"
+        android:layout_alignBottom="@+id/photo_description"
+        android:src="@drawable/text_background"/>
+
     <TextView
         android:id="@+id/photo_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/scheduledCheckbox"
         android:layout_margin="@dimen/default_margin"
-        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textAppearance="?android:attr/textAppearanceLargeInverse"
         tools:text="Photo Title"/>
 
     <TextView
@@ -56,7 +84,28 @@
         android:layout_marginStart="@dimen/default_margin"
         android:layout_marginEnd="@dimen/default_margin"
         android:layout_below="@+id/photo_title"
-        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAppearance="?android:attr/textAppearanceSmallInverse"
         tools:text="Photo descriptions will be longer"/>
 
+    <TextView
+        android:id="@+id/photo_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginEnd="@dimen/default_margin"
+        android:layout_below="@+id/map_container"
+        android:textAppearance="?android:attr/textAppearanceMediumInverse"
+        android:textAlignment="textEnd"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="4"
+        tools:text="9/10/15"/>
+
+    <Button
+        android:id="@+id/photo_info_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/photo_info"
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>

@@ -11,5 +11,7 @@
     <string name="toast_wallpaper_service_start_scheduling">Starting Wallpaper Job</string>
     <string name="toast_wallpaper_service_stop_scheduling">Stopping Wallpaper Job</string>
 
-    <string name="schedule_service">Scheduled</string>
+    <string name="schedule_service">Change Daily</string>
+
+    <string name="photo_info">More Info</string>
 </resources>

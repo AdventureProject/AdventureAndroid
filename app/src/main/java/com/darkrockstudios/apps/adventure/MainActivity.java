@@ -265,8 +265,8 @@ public class MainActivity extends AppCompatActivity
 
 	private static class PhotoData
 	{
-		public final Photo  m_photo;
-		public final Bitmap m_bitmap;
+		final Photo  m_photo;
+		final Bitmap m_bitmap;
 
 		private PhotoData( Photo photo, Bitmap bitmap )
 		{
